@@ -85,6 +85,25 @@ else
     echo "Skipping installation"
 fi
 
+# Stage package data into dist directory
+echo "Staging package data into dist"
+sed -n '/^\[options\.package_data\]/,/^\[/p' setup.cfg \
+| grep '^[[:space:]]' \
+| sed 's/^[[:space:]]\+//' \
+| while read -r f; do
+    if [ -f "$f" ]; then
+        mkdir -p "$(dirname "$DIST_PATH/$f")"
+        cp "$f" "$DIST_PATH/$f"
+    fi
+done
+
+# Zip dist output
+ZIP_NAME="${PACKAGE_NAME}-${VERSION}.zip"
+echo "Zipping dist"
+rm -f "$DIST_PATH/$ZIP_NAME"
+zip -r "$DIST_PATH/$ZIP_NAME" "$DIST_PATH" -x "$DIST_PATH/$ZIP_NAME"
+echo "Created $DIST_PATH/$ZIP_NAME"
+
 # Clean package data
 sed -n '/^\[options\.package_data\]/,/^\[/p' setup.cfg \
 | grep '^[[:space:]]' \
