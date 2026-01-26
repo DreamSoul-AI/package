@@ -15,7 +15,7 @@ usage() {
 INSTALL_PACKAGE=true
 PACKAGE_NAME="package"
 VERSION="0.0.1"
-SOURCE_PATH=""
+SOURCE_PATH="src/$PACKAGE_NAME"
 DIST_PATH="dist"
 
 # Parse args
@@ -46,6 +46,15 @@ cp setup.bak.cfg setup.cfg
 # Update version
 sed -i "s/^version = .*/version = $VERSION/" setup.cfg
 
+# Stage package data
+echo "Staging package data"
+sed -n '/^\[options\.package_data\]/,/^\[/p' setup.cfg \
+| grep '^[[:space:]]' \
+| sed 's/^[[:space:]]\+//' \
+| while read -r f; do
+    [ -f "$f" ] && cp "$f" "$SOURCE_PATH/"
+done
+
 echo "setup.cfg:"
 cat setup.cfg
 
@@ -75,6 +84,15 @@ if $INSTALL_PACKAGE; then
 else
     echo "Skipping installation"
 fi
+
+# Clean package data
+sed -n '/^\[options\.package_data\]/,/^\[/p' setup.cfg \
+| grep '^[[:space:]]' \
+| sed 's/^[[:space:]]\+//' \
+| while read -r f; do
+    rm -f "$SOURCE_PATH/$f"
+done
+echo "Cleaned up package data"
 
 # Cleanup
 rm setup.cfg
