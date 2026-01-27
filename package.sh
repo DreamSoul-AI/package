@@ -100,8 +100,11 @@ done
 # Zip dist output
 ZIP_NAME="${PACKAGE_NAME}-${VERSION}.zip"
 echo "Zipping dist"
-rm -f "$DIST_PATH/$ZIP_NAME"
-zip -r "$DIST_PATH/$ZIP_NAME" "$DIST_PATH" -x "$DIST_PATH/$ZIP_NAME"
+(
+    cd "$DIST_PATH"
+    rm -f "$ZIP_NAME"
+    zip -r "$ZIP_NAME" . -x "$ZIP_NAME"
+)
 echo "Created $DIST_PATH/$ZIP_NAME"
 
 # Clean package data
